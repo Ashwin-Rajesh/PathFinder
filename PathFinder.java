@@ -9,99 +9,68 @@ public class PathFinder
     {
         System.out.println("Hello there!");
         world World = new world(8,8);
-        World.print();
+
         Shape shape = new Shape();
         pickAndFill(shape);
+
+        int x = 1 + (int)(Math.random() * (7 - shape.getWidth()));
+        int y = 1 + (int)(Math.random() * (7 - shape.getHeight()));
+        World.setObstacle(shape, x, y);
+        World.print();
     }
     
     public static void pickAndFill(Shape shape)
     {
         int r = (int) (Math.random() * 3);
-        boolean[][] filledBlocks;
+        boolean[][] filledBlocks = null;
         if(r == 0)//shapeT
         {
-            shapeT(shape, filledBlocks);
+            shape.setWidth(3);
+            shape.setHeight(3);
+            filledBlocks = new boolean[3][3];
+            for(int i = 0; i < 3; i++)
+                for(int j = 0; j < 3; j++)
+                    filledBlocks[i][j] = false;
+
+            filledBlocks[0][0] = true;
+            filledBlocks[0][1] = true;
+            filledBlocks[0][2] = true;
+            filledBlocks[1][1] = true;
+            filledBlocks[2][1] = true;
         }
         else if(r == 1)//shapeI
         {
-            shapeI(shape, filledBlocks);
-        }
-        else//shapeL
-        {
-            shapeL(shape, filledBlocks);
-        }
-        shape.setBlockade(filledBlocks);
-    }
-    
-    public static void shapeT(Shape shape, boolean[][] filledBlocks)
-    {
-        int size = (int) (Math.random() * 3);
-        shape.setWidth(3);
-        if(size == 1)       //blocks = 4
-        {
-            shape.setHeight(2);
-            filledBlocks = new boolean[shape.getHeight()][shape.getWidth()];
-            filledBlocks[1][1] = true;
-        }
-        else                //blocks = 5
-        {
-            shape.setHeight(3);
-            filledBlocks = new boolean[shape.getHeight()][shape.getWidth()];
-            filledBlocks[1][1] = true;
-            filledBlocks[2][1] = true;
-        }
-        for(int i = 0; i < shape.getWidth(); i++)
-        {
-            filledBlocks[0][i] = true;
-        }
-    }
-    
-    public static void shapeI(Shape shape, boolean[][] filledBlocks)
-    {
-        int size = (int) (Math.random() * 3);
-        shape.setWidth(1);
-        if(size == 0)       //blocks = 3
-        {
-            shape.setHeight(3);
-            filledBlocks = new boolean[shape.getHeight()][shape.getWidth()];
-        }
-        else if(size == 1)  //blocks = 4
-        {
-            shape.setHeight(4);
-            filledBlocks = new boolean[shape.getHeight()][shape.getWidth()];
-        }
-        else                //blocks = 5
-        {
-            shape.setHeight(5);
-            filledBlocks = new boolean[shape.getHeight()][shape.getWidth()];
-        }
-        for(int i = 0; i < shape.getHeight(); i++)
-        {
-            filledBlocks[i][0] = true;
-        }
-    }
-    
-    public static void shapeL(Shape shape, boolean[][] filledBlocks)
-    {
-        int size = (int) (Math.random() * 2);
-        shape.setHeight(3);
-        if(size == 0)   // blocks = 4
-        {
-            shape.setWidth(2);
-            filledBlocks = new boolean[shape.getHeight()][shape.getWidth()];
-            filledBlocks[2][1] = true;
-        }
-        else            //blocks = 5
-        {
             shape.setWidth(3);
-            filledBlocks = new boolean[shape.getHeight()][shape.getWidth()];
+            shape.setHeight(3);
+            filledBlocks = new boolean[3][3];
+            for(int i = 0; i < 3; i++)
+                for(int j = 0; j < 3; j++)
+                    filledBlocks[i][j] = false;
+            
+            filledBlocks[0][0] = true;
+            filledBlocks[0][1] = true;
+            filledBlocks[0][2] = true;
+            filledBlocks[1][1] = true;
+            filledBlocks[2][0] = true;
             filledBlocks[2][1] = true;
             filledBlocks[2][2] = true;
         }
-        for(int i = 0; i < shape.getHeight(); i++)
+        else//shapeL
         {
-            filledBlocks[i][0] = true;
+            shape.setWidth(3);
+            shape.setHeight(3);
+            filledBlocks = new boolean[3][3];
+            for(int i = 0; i < 3; i++)
+                for(int j = 0; j < 3; j++)
+                    filledBlocks[i][j] = false;
+            
+            filledBlocks[0][0] = true;
+            filledBlocks[1][0] = true;
+            filledBlocks[2][0] = true;
+            filledBlocks[2][1] = true;
+            filledBlocks[2][2] = true;
         }
+        shape.setBlockade(filledBlocks);
     }
 }
 
@@ -120,6 +89,17 @@ class world
                 Cells[i][j] = new cell((char)(i+65) + Integer.toString(j));
             }
         }
+
+        for(int i = 0; i < height; i++)
+        {
+            for (int j = 0; j < width; j++)
+            {
+                if(i != 0)  Cells[i][j].addNeighbour(Cells[i-1][j]);
+                if(i != 7)  Cells[i][j].addNeighbour(Cells[i+1][j]);
+                if(j != 0)  Cells[i][j].addNeighbour(Cells[i][j-1]);
+                if(j != 7)  Cells[i][j].addNeighbour(Cells[i][j+1]);
+            }
+        }
     }
 
     public void print()
@@ -128,12 +108,25 @@ class world
         {
             for (cell c : Cells[i])
             {
-                System.out.print(c.getName() + " ");
+                if(c.isObstacle())
+                    System.out.print("__ ");
+                else
+                    System.out.print(c.getName() + " ");
             }
             System.out.println();
         }
     }
     
+    public void setObstacle(Shape s, int x, int y)
+    {
+        boolean blocks[][] = s.getBlocks();
+        for(int i = 0; i < s.getHeight(); i++)
+            for(int j = 0; j < s.getHeight(); j++)
+            {
+                if(blocks[i][j])
+                    Cells[i+y][j+x].makeObstacle();
+            }
+    }
 }
 
 class cell
@@ -144,6 +137,7 @@ class cell
 
     public cell(String str)
     {
+        neighbours = new Vector<cell>();
         name = str;
         status = "open";
     }
@@ -156,6 +150,11 @@ class cell
     public Vector<cell> getNeighbours()
     {
         return neighbours;
+    }
+
+    public void addNeighbour(cell c)
+    {
+        neighbours.add(c);
     }
 
     public void setNeighbours(Vector<cell> vec)
@@ -171,6 +170,23 @@ class cell
     public String getStatus()
     {
         return status;
+    }
+
+    public void makeObstacle()
+    {
+        for(cell c : neighbours)
+            c.removeNeighbour(this);
+        neighbours = null;
+    }
+
+    public boolean isObstacle()
+    {
+        return neighbours == null;
+    }
+
+    public void removeNeighbour(cell c)
+    {
+        neighbours.remove(c);
     }
 }
 
@@ -202,6 +218,7 @@ class Shape
     
     public void setBlockade(boolean[][] filledBlocks)
     {
+        blocks = new boolean[height][width];
         for(int i = 0; i < height; i++)
         {
             for(int j = 0; j < width; j++)
@@ -209,5 +226,10 @@ class Shape
                 blocks[i][j] = filledBlocks[i][j];
             }
         }
+    }
+
+    public boolean[][] getBlocks()
+    {
+        return blocks;
     }
 }   
