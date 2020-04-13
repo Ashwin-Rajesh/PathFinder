@@ -28,8 +28,8 @@ public class PathFinder
             shape.setWidth(3);
             shape.setHeight(3);
             filledBlocks = new boolean[3][3];
-            for(int i = 0; i < 3; i++)
-                for(int j = 0; j < 3; j++)
+            for(int i = 0; i < shape.getHeight(); i++)
+                for(int j = 0; j < shape.getWidth(); j++)
                     filledBlocks[i][j] = false;
 
             filledBlocks[0][0] = true;
@@ -43,8 +43,8 @@ public class PathFinder
             shape.setWidth(3);
             shape.setHeight(3);
             filledBlocks = new boolean[3][3];
-            for(int i = 0; i < 3; i++)
-                for(int j = 0; j < 3; j++)
+            for(int i = 0; i < shape.getHeight(); i++)
+                for(int j = 0; j < shape.getWidth(); j++)
                     filledBlocks[i][j] = false;
             
             filledBlocks[0][0] = true;
@@ -60,8 +60,8 @@ public class PathFinder
             shape.setWidth(3);
             shape.setHeight(3);
             filledBlocks = new boolean[3][3];
-            for(int i = 0; i < 3; i++)
-                for(int j = 0; j < 3; j++)
+            for(int i = 0; i < shape.getHeight(); i++)
+                for(int j = 0; j < shape.getWidth(); j++)
                     filledBlocks[i][j] = false;
             
             filledBlocks[0][0] = true;
@@ -121,7 +121,7 @@ class world
     {
         boolean blocks[][] = s.getBlocks();
         for(int i = 0; i < s.getHeight(); i++)
-            for(int j = 0; j < s.getHeight(); j++)
+            for(int j = 0; j < s.getWidth(); j++)
             {
                 if(blocks[i][j])
                     Cells[i+y][j+x].makeObstacle();
