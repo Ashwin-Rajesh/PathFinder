@@ -2,12 +2,16 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.PriorityQueue;
 import java.util.Vector;
+import java.util.Scanner;
 
 public class PathFinder
 {
     public static void main(String[] args)
     {
+        Scanner input = new Scanner(System.in);
         System.out.println("Hello there!");
+        int xi,xf,yi,yf;
+        
         world World = new world(8,8);
 
         Shape shape = new Shape();
@@ -17,16 +21,28 @@ public class PathFinder
         int y = 1 + (int)(Math.random() * (7 - shape.getHeight()));
         World.setObstacle(shape, x, y);
         World.print();
+        
+        System.out.println("Enter the x coordinate of the initial point(1-8)");
+        xi = input.nextInt();
+        System.out.println("Enter the y coordinate of the initial point(1-8)");
+        xf = input.nextInt();
+        System.out.println("Enter the x coordinate of the final point(1-8)");
+        yi = input.nextInt();
+        System.out.println("Enter the y coordinate of the final point(1-8)");
+        yf = input.nextInt();
+        
+        world.setInitialPoint(xi, yi);
+        world.setFinalPoint(xf, yf);
     }
     
     public static void pickAndFill(Shape shape)
     {
         int r = (int) (Math.random() * 3);
         boolean[][] filledBlocks = null;
+        shape.setWidth(3);
+        shape.setHeight(3);
         if(r == 0)//shapeT
         {
-            shape.setWidth(3);
-            shape.setHeight(3);
             filledBlocks = new boolean[3][3];
             for(int i = 0; i < shape.getHeight(); i++)
                 for(int j = 0; j < shape.getWidth(); j++)
@@ -40,8 +56,6 @@ public class PathFinder
         }
         else if(r == 1)//shapeI
         {
-            shape.setWidth(3);
-            shape.setHeight(3);
             filledBlocks = new boolean[3][3];
             for(int i = 0; i < shape.getHeight(); i++)
                 for(int j = 0; j < shape.getWidth(); j++)
@@ -57,8 +71,6 @@ public class PathFinder
         }
         else//shapeL
         {
-            shape.setWidth(3);
-            shape.setHeight(3);
             filledBlocks = new boolean[3][3];
             for(int i = 0; i < shape.getHeight(); i++)
                 for(int j = 0; j < shape.getWidth(); j++)
@@ -77,7 +89,9 @@ public class PathFinder
 class world
 {
     public cell[][] Cells;
-
+    public static int[] initialPoint = new int[2];
+    public static int[] finalPoint = new int[2];
+    
     public world(int height, int width)
     {
         Cells = new cell[height][width];
@@ -126,6 +140,33 @@ class world
                 if(blocks[i][j])
                     Cells[i+y][j+x].makeObstacle();
             }
+    }
+    
+    public static void setInitialPoint(int x, int y)
+    {
+        initialPoint[0] = x;
+        initialPoint[1] = y;
+    }
+    
+    public static void setFinalPoint(int x, int y)
+    {
+        finalPoint[0] = x;
+        finalPoint[1] = y;
+    }
+    
+    public int[] getInitialPoint()
+    {
+        return initialPoint;
+    }
+    
+    public int[] getFinalPoint()
+    {
+        return finalPoint; 
+    }
+    
+    public void setManhattanDistance()
+    {
+        
     }
 }
 
