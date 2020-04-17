@@ -20,19 +20,23 @@ public class PathFinder
         int x = 1 + (int)(Math.random() * (7 - shape.getWidth()));
         int y = 1 + (int)(Math.random() * (7 - shape.getHeight()));
         World.setObstacle(shape, x, y);
+        
         World.print();
+
+        do{
+            System.out.println("Enter the x coordinate of the initial point(1-8)");
+            xi = input.nextInt();
+            System.out.println("Enter the y coordinate of the initial point(1-8)");
+            yi = input.nextInt();
+            System.out.println("Enter the x coordinate of the final point(1-8)");
+            xf = input.nextInt();
+            System.out.println("Enter the y coordinate of the final point(1-8)");
+            yf = input.nextInt();
+            System.out.println();
+        }while(!(World.setInitialPoint(xi, yi) && World.setFinalPoint(xf, yf)));
         
-        System.out.println("Enter the x coordinate of the initial point(1-8)");
-        xi = input.nextInt();
-        System.out.println("Enter the y coordinate of the initial point(1-8)");
-        xf = input.nextInt();
-        System.out.println("Enter the x coordinate of the final point(1-8)");
-        yi = input.nextInt();
-        System.out.println("Enter the y coordinate of the final point(1-8)");
-        yf = input.nextInt();
-        
-        world.setInitialPoint(xi, yi);
-        world.setFinalPoint(xf, yf);
+        System.out.println("Inputs accepted!");
+        input.close();
     }
     
     public static void pickAndFill(Shape shape)
@@ -89,8 +93,8 @@ public class PathFinder
 class world
 {
     public cell[][] Cells;
-    public static int[] initialPoint = new int[2];
-    public static int[] finalPoint = new int[2];
+    public cell initialPoint;
+    public cell finalPoint;
     
     public world(int height, int width)
     {
@@ -100,7 +104,7 @@ class world
         {
             for (int j = 0; j < width; j++)
             {
-                Cells[i][j] = new cell((char)(i+65) + Integer.toString(j));
+                Cells[i][j] = new cell((char)(i+65) + Integer.toString(j),new int[]{i, j});
             }
         }
 
@@ -125,7 +129,7 @@ class world
                 if(c.isObstacle())
                     System.out.print("__ ");
                 else
-                    System.out.print(c.getName() + " ");
+                    System.out.print(c.getName()  + " ");
             }
             System.out.println();
         }
@@ -142,31 +146,59 @@ class world
             }
     }
     
-    public static void setInitialPoint(int x, int y)
+    public boolean setInitialPoint(int x, int y)
     {
-        initialPoint[0] = x;
-        initialPoint[1] = y;
+        if(x > Cells.length || x < 1)
+        {
+            System.out.printf(" The given point, {%2s,%2s} is out of bounds.\n\n",x,y);
+            return false;
+        }
+        if(y > Cells[0].length || y < 1)
+        {
+            System.out.printf(" The given point, {%2s,%2s} is out of bounds.\n\n",x,y);
+            return false;
+        }
+        if(Cells[x - 1][y - 1].isObstacle())
+        {
+            System.out.printf(" The given point, {%2s,%2s} is an obstacle.\n\n",x,y);
+            return false;
+        }    
+
+        initialPoint = Cells[x - 1][y -1];
+        return true;
     }
     
-    public static void setFinalPoint(int x, int y)
+    public boolean setFinalPoint(int x, int y)
     {
-        finalPoint[0] = x;
-        finalPoint[1] = y;
+        
+        if(x > Cells.length || x < 1)
+        {
+            System.out.printf(" The given point, {%2s,%2s} is out of bounds.\n\n",x,y);
+            return false;
+        }
+        if(y > Cells[0].length || y < 1)
+        {
+            System.out.printf(" The given point, {%2s,%2s} is out of bounds.\n\n",x,y);
+            return false;
+        }
+        if(Cells[x - 1][y - 1].isObstacle())
+        {
+            System.out.printf(" The given point, {%2s,%2s} is an obstacle.\n\n",x,y);
+            return false;
+        }    
+        
+        finalPoint = Cells[x - 1][y -1];
+        return true;
     }
     
-    public int[] getInitialPoint()
+    public cell getInitialPoint()
     {
         return initialPoint;
     }
     
-    public int[] getFinalPoint()
+    public cell getFinalPoint()         
     {
         return finalPoint; 
-    }
-    
-    public void setManhattanDistance()
-    {
-        
     }
 }
 
@@ -175,43 +207,29 @@ class cell
     private String name;
     private Vector<cell> neighbours;
     private String status;
+    private int coordinate[];
 
-    public cell(String str)
+    public cell(String str, int arr[])
     {
+        coordinate = arr.clone();
         neighbours = new Vector<cell>();
         name = str;
         status = "open";
     }
 
-    public String getName()
-    {
-        return name;
-    }
+    public String getName()                         {return name;}
 
-    public Vector<cell> getNeighbours()
-    {
-        return neighbours;
-    }
+    public Vector<cell> getNeighbours()             {return neighbours;}
 
-    public void addNeighbour(cell c)
-    {
-        neighbours.add(c);
-    }
+    public String getStatus()                       {return status;}
 
-    public void setNeighbours(Vector<cell> vec)
-    {
-        neighbours = new Vector<cell>(vec);
-    }
+    public int[] getCoordinates()                   {return coordinate;}
 
-    public void setStatus(String str)
-    {
-        status = str;
-    }
+    public void setNeighbours(Vector<cell> vec)     {neighbours = new Vector<cell>(vec);}
 
-    public String getStatus()
-    {
-        return status;
-    }
+    public void setStatus(String str)               {status = str;}
+
+    public void addNeighbour(cell c)                {neighbours.add(c);}
 
     public void makeObstacle()
     {
@@ -220,14 +238,13 @@ class cell
         neighbours = null;
     }
 
-    public boolean isObstacle()
-    {
-        return neighbours == null;
-    }
+    public boolean isObstacle()                     {return neighbours == null;}
 
-    public void removeNeighbour(cell c)
+    public void removeNeighbour(cell c)             {neighbours.remove(c);}
+
+    public int getManhattanDistance(cell c)         
     {
-        neighbours.remove(c);
+        return Math.abs(c.coordinate[0] - this.coordinate[0]) + Math.abs(c.coordinate[1] - this.coordinate[1]);
     }
 }
 
@@ -273,4 +290,4 @@ class Shape
     {
         return blocks;
     }
-}   
+}
